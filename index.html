@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta name="google-site-verification" content="XKJ_VX7YCcykkNn1rNbam7eqFX9CIJVtH9L9GSlV87w" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>XI SIJA 1 | SMKN 9 Kota Bekasi | Teknologi & Inovasi</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+
+    /* BACKGROUND DINAMIS TEKNOLOGI + GELOMBANG MERAH PUTIH */
+    body {
+      background: #0a0f1c;
+      min-height: 100vh;
+      position: relative;
+      color: #1e1a17;
+    }
+
+    /* canvas untuk efek partikel/background bergerak */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      display: block;
+      background: linear-gradient(135deg, #0b1120 0%, #1a1f2e 100%);
+    }
+
+    /* overlay merah putih transparan */
+    .overlay-merahputih {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 40%, rgba(220, 60, 50, 0.08), rgba(255,245,235,0.02));
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.8rem 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ANIMASI MASUK (splash text) */
+    .splash-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0b0f1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      backdrop-filter: blur(8px);
+      flex-direction: column;
+      gap: 20px;
+    }
+    .splash-animation.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .splash-logo {
+      font-size: 5rem;
+      animation: bounceGlow 1s ease infinite alternate;
+      filter: drop-shadow(0 0 15px #c92a2a);
+    }
+    .splash-text {
+      color: white;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #ff5e4a, #ffb347);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .splash-sub {
+      color: #ffbb99;
+      font-weight: 500;
+    }
+    @keyframes bounceGlow {
+      0% { transform: scale(0.95); text-shadow: 0 0 5px #c92a2a; }
+      100% { transform: scale(1.2); text-shadow: 0 0 30px #ff6347; }
+    }
+
+    /* header */
+    .hero {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      padding: 1.8rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 25px 40px -15px rgba(0,0,0,0.3);
+      border: 1px solid rgba(201, 42, 42, 0.3);
+      transition: all 0.3s;
+    }
+    .hero h1 {
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .anthena-icon {
+      background: #c92a2a20;
+      padding: 8px 14px;
+      border-radius: 60px;
+      font-size: 1.8rem;
+    }
+    .jam-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      align-items: center;
+    }
+    .live-clock {
+      background: #c92a2a;
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      color: white;
+      font-weight: 700;
+      font-size: 1.5rem;
+      box-shadow: 0 6px 14px rgba(201,42,42,0.4);
+    }
+    .tanggal-lengkap {
+      background: rgba(0,0,0,0.05);
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      border-left: 4px solid #c92a2a;
+    }
+
+    /* penjelasan SIJA */
+    .sija-desc {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border-radius: 1.8rem;
+      padding: 1.6rem;
+      margin-bottom: 2rem;
+      border: 1px solid #ffc9c9;
+    }
+
+    /* galeri dengan img class (bisa ganti foto) */
+    .galeri-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.8rem;
+      margin-top: 1.5rem;
+    }
+    .card-galeri {
+      background: white;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 18px 28px -12px rgba(0,0,0,0.2);
+      transition: all 0.4s ease;
+    }
+    .card-galeri:hover { transform: translateY(-8px); }
+    .card-galeri img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      transition: 0.4s;
+    }
+    .card-galeri:hover img { transform: scale(1.02);}
+    .caption {
+      padding: 1rem;
+      font-weight: 600;
+      background: #fffaf5;
+    }
+
+    /* struktur */
+    .struktur, .siswa-section, .rating-web, .jadwal-piket-section {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 1.8rem;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid #ffd9d0;
+    }
+    .struktur-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+    }
+    .struktur-card {
+      flex: 1;
+      background: #fff5f0;
+      border-radius: 1.2rem;
+      padding: 1rem;
+      border-left: 5px solid #c92a2a;
+    }
+
+    /* daftar siswa */
+    .daftar-siswa {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+      max-height: 380px;
+      overflow-y: auto;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+    .siswa-item {
+      background: #fff2ec;
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .siswa-item:hover {
+      background: #ffe0d4;
+      transform: translateX(5px);
+    }
+    #searchSiswa {
+      width: 100%;
+      padding: 12px;
+      border-radius: 50px;
+      border: 1px solid #ffaa92;
+      background: white;
+      font-size: 1rem;
+    }
+
+    /* tab jadwal & piket digabung dalam satu section */
+    .tab-jadwal { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
+    .tab-btn {
+      background: #ffe2d6;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .tab-btn.active { background: #c92a2a; color: white; box-shadow: 0 4px 10px #c92a2a60; }
+    table { width: 100%; border-collapse: collapse; background: rgba(255,250,245,0.9); border-radius: 1.2rem; overflow: hidden; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid #ffcdb5; text-align: left; vertical-align: top; }
+    th { background: #c92a2a20; color: #a12020; }
+    .jadwal-table, .piket-table { overflow-x: auto; }
+
+    /* rating emoji */
+    .emoji-rating { display: flex; justify-content: center; gap: 1.5rem; font-size: 2.2rem; cursor: pointer; margin: 0.8rem 0; }
+    .emoji-rating span { transition: 0.2s; filter: grayscale(0.4);}
+    .emoji-rating span.selected, .emoji-rating span:hover { transform: scale(1.3); filter: grayscale(0);}
+
+    /* footer dengan logo instagram & quick links yang smooth */
+    footer {
+      background: #181c2c;
+      color: #ffdad2;
+      border-radius: 1.8rem;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+      gap: 2rem;
+    }
+    .quick-links a, .social a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #ffbcac;
+      margin: 0.6rem 0;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .quick-links a:hover, .social a:hover { color: white; padding-left: 4px; }
+    .instagram-logo { font-size: 1.4rem; }
+    .copyright { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #663f2e; font-size: 0.85rem;}
+
+    /* animasi scroll */
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(25px);}
+      100% { opacity: 1; transform: translateY(0);}
+    }
+    .hero, .sija-desc, .galeri, .struktur, .siswa-section, .rating-web, .jadwal-piket-section, footer {
+      animation: fadeSlide 0.6s ease-out forwards;
+    }
+    button, .tab-btn { cursor: pointer; }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    section {
+      scroll-margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="overlay-merahputih"></div>
+
+<!-- ANIMASI SPLASH MASUK -->
+<div id="splashAnim" class="splash-animation">
+  <div class="splash-logo">💻🖥️🕹️</div>
+  <div class="splash-text">XI SIJA 1</div>
+  <div class="splash-sub">SMKN 9 KOTA BEKASI</div>
+  <div style="margin-top:20px; font-size:0.9rem; color:#ffb48a;">⚡ Teknologi · Kolaborasi · Prestasi ⚡</div>
+</div>
+
+<div class="container">
+  <!-- Header Jam online sesuai lokasi -->
+  <div class="hero" id="beranda">
+    <h1>
+      <span class="anthena-icon">💻🖥️🕹️</span> 
+      XI SIJA 1 · SMKN 9 KOTA BEKASI
+    </h1>
+    <p>Sistem Informasi Jaringan & Aplikasi - Generasi Teknologi Masa Depan</p>
+    <div class="jam-container">
+      <div class="live-clock" id="liveClock">🕒 --:--:--</div>
+      <div class="tanggal-lengkap" id="liveDate"></div>
+    </div>
+  </div>
+
+  <!-- Penjelasan SIJA -->
+  <div class="sija-desc" id="tentang">
+    <h2>💻 Apa itu SIJA ?</h2>
+    <p><strong>SIJA (Sistem Informasi Jaringan dan Aplikasi)</strong> adalah kompetensi keahlian yang mempelajari pengembangan perangkat lunak, administrasi jaringan, server, dan integrasi sistem digital. Di SMKN 9 Kota Bekasi, siswa SIJA dibekali keterampilan Pemograman, IoT, dan infrastruktur jaringan. <strong>XI SIJA 1</strong> adalah kelas unggulan dengan semangat inovasi dan kolaborasi teknologi tinggi 🚀.</p>
+  </div>
+
+  <!-- GALERI dengan img class (bisa ganti foto) -->
+  <div class="galeri" id="galeri">
+    <h2 style="color:#c92a2a">📸 Galeri Kelas XI SIJA 1</h2>
+    <div class="galeri-grid">
+      <div class="card-galeri"><img class="galeri-img" src="Foto Bersama.jpeg" alt="kebersamaan"><div class="caption">❤️ Foto Bersama XI SIJA 1</div></div>
+      <div class="card-galeri"><img class="galeri-img" src="Upacara XI SIJA 1.jpeg" alt="Upacara"><div class="caption">🎓 Upacara Bendera Merah Putih</div></div>
+      <div class="card-galeri"><img class="galeri-img" src="Hari Batik Nasional.jpeg" alt="Hari Batik"><div class="caption">👔 Hari Batik 2025</div></div>
+      <div class="card-galeri"><img class="galeri-img" src="Hari Guru.jpeg" alt="Hari Guru"><div class="caption">👩‍🏫 Hari Guru 2025</div></div>
+    </div>
+    <p style="font-size:12px; margin-top:8px;">* Catatan: Ganti src gambar dengan foto asli kelas, gunakan class="galeri-img"</p>
+  </div>
+
+  <!-- Struktur Kelas (Wali Kelas Nuraeni, S.Pd.) -->
+  <div class="struktur" id="struktur">
+    <h2>🏛️ Struktur Kelas XI SIJA 1</h2>
+    <div class="struktur-grid">
+      <div class="struktur-card"><h3>👩‍🏫 Wali Kelas</h3><div><strong>Nuraeni, S.Pd.</strong></div><div style="font-size:0.8rem;">Pembimbing Kelas Unggulan</div></div>
+      <div class="struktur-card"><h3>📌 Ketua Kelas</h3><div><strong>Jevon Tamaro Tamba</strong></div></div>
+      <div class="struktur-card"><h3>📌 Wakil Ketua</h3><div><strong>Reyvan Putra Prasetya</strong></div></div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:1rem; margin-top:1rem;">
+      <div class="struktur-card" style="flex:1"><h3>📋 Sekretaris</h3>1. Alyssa Ramadhani<br>2. Sahra Laely<br>3. Rafa'at Shastradynata</div>
+      <div class="struktur-card" style="flex:1"><h3>💰 Bendahara</h3>1. Keysha Azzahra<br>2. Shanaz Azzahra<br>3. Haikal Alfarizky Jatmiko</div>
+    </div>
+  </div>
+
+  <!-- Daftar Nama Siswa sesuai absen -->
+  <div class="siswa-section" id="siswa">
+    <h2>📋 Daftar Siswa (Absen 1-36)</h2>
+    <div class="search-box"><input type="text" id="searchSiswa" placeholder="🔍 Cari nama atau nomor absen..."></div>
+    <div id="siswaListContainer" class="daftar-siswa"></div>
+  </div>
+
+  <!-- Jadwal & Piket dalam satu section (digabung) -->
+  <div class="jadwal-piket-section" id="jadwalPiket">
+    <h2>📅 Jadwal Pelajaran & Piket Kelas</h2>
+    <div class="tab-jadwal">
+      <button class="tab-btn active" data-tab="jadwal">📖 Jadwal Pelajaran</button>
+      <button class="tab-btn" data-tab="piket">🧹 Jadwal Piket</button>
+    </div>
+    <div id="jadwalPanel" class="jadwal-table"></div>
+    <div id="piketPanel" class="piket-table" style="display:none"></div>
+  </div>
+
+  <!-- Rating Web Emoji -->
+  <div class="rating-web" id="rating">
+    <h3>⭐ Rate Website Kelas Kami</h3>
+    <div class="emoji-rating" id="emojiRating">
+      <span data-rate="1">😞</span><span data-rate="2">🙁</span><span data-rate="3">😐</span><span data-rate="4">🙂</span><span data-rate="5">😍</span>
+    </div>
+    <div id="ratingMessage"></div>
+  </div>
+
+  <!-- Footer dengan Logo Instagram dan quick links yang smooth scroll -->
+  <footer>
+    <div class="footer-grid">
+      <div><h4>🏫 SMKN 9 KOTA BEKASI</h4><p>Jl. Cikunir Raya Gg.H.Abas RT.01 RW.02, Jakamulya, Bekasi Selatan Kota Bekasi, Jawa Barat </p></div>
+      <div class="quick-links"><h4>⚡ Quick Links</h4>
+        <a data-scroll="beranda">🏠 Beranda</a>
+        <a data-scroll="galeri">📸 Galeri</a>
+        <a data-scroll="struktur">🏛️ Struktur Kelas</a>
+        <a data-scroll="jadwalPiket">📅 Jadwal & Piket</a>
+        <a data-scroll="siswa">📋 Daftar Siswa</a>
+      </div>
+      <div class="social"><h4>📱 Social Networks</h4>
+        <a href="https://instagram.com/smkn9kotabekasi" target="_blank"><span class="instagram-logo">📷</span> Instagram SMKN 9</a>
+        <a href="https://instagram.com/cebelassija1" target="_blank"><span class="instagram-logo">📸</span> Instagram Kelas XI SIJA 1</a>
+        <a href="https://instagram.com/sideofsija1" target="_blank"><span class="instagram-logo">📸</span> Side of SIJA 1</a>
+      </div>
+    </div>
+    <div class="copyright">Dibuat oleh Basarif Salampessy · 2026 - XI SIJA 1 | SMKN 9 KOTA BEKASI</div>
+  </footer>
+</div>
+
+<script>
+  // ======================= DATA LENGKAP =======================
+  const siswa = [
+    "Abiezal Azka Syauqi","Adimas Syahyudi","Ahmad Faqih Hafidz","Alpha Akira Ramadhan","Alyssa Ramadhani","Andika Novansyah",
+    "Ashril Hardiansyah","Aulia Putri","Aura Khoirunnisa Haryanto","Basarif Salampessy","Bintang Felyan Toni Putra","Erel Hamizan Baldwin",
+    "Fairuz Athaillah","Farel Muhamad Rabbani","Farrell Aditya Arganta","Faruq Wafa Alfarisi","Haikal Alfarizky Jatmiko","Haura Ainun Mahya",
+    "Ilham Bintang Mewal","Jevon Tamaro Tamba","Keysha Azzahra","Luwi Arjuna Sakti Kurnianto","M.Habibi","Moh.Agung Putra Chairida",
+    "Muhammad Al Jabar Ramadhan","Muhammad Irwansyah","Muhammad Raihan Alzena","Naufal Arfi","Rafa'at Shastradynata","Reyvan Putra Prasetya",
+    "Rizki Aditya","Rizky Nadir Faadhilah","Sadza Kholis Rayhan","Sahra Laely","Shanaz Azzahra","Virgi Irawan"
+  ];
+
+  const jadwalMapel = {
+    Senin: ["06.30-07.30 Upacara","07.30-09.55 PAAS","09.55-10.15 ISTIRAHAT","10.15-11.35 PKK","11.35-12.15 MPS SIJA","12.15-13.00 ISTIRAHAT","13.00-13.40 MPS SIJA","13.40-15.00 SAAS"],
+    Selasa: ["06.30-07.00 TADARUS","07.00-09.00 PAIBP","09.00-09.40 BAHASA INDONESIA","09.40-10.05 ISTIRAHAT","10.05-10.45 BAHASA INDONESIA","10.45-12.05 SEJARAH","12.05-13.00 ISTIRAHAT","13.00-13.40 SEJARAH","13.40-15.00 SAAS"],
+    Rabu: ["06.30-07.00 TADARUS","07.00-09.40 IAAS","09.40-10.05 ISTIRAHAT","10.05-10.45 PKK","10.45-12.05 MATEMATIKA","12.05-13.00 ISTIRAHAT","13.00-13.40 MATEMATIKA","13.40-15.00 BAHASA INGGRIS"],
+    Kamis: ["06.30-07.00 TADARUS","07.00-08.20 BAHASA INGGRIS","08.20-09.40 PJOK","09.40-10.05 ISTIRAHAT","10.05-11.25 SKJ","11.25-12.05 PKN","12.05-13.00 ISTIRAHAT","13.00-13.40 PKN","13.40-15.00 SAAS"],
+    Jumat: ["06.30-07.30 JUMAT AKTIF","07.30-08.20 SKJ","08.20-09.40 PKK","09.40-10.00 ISTIRAHAT","10.00-11.20 MPDM SIJA","11.20-12.40 SHOLAT JUMAT"]
+  };
+  const piketData = {
+    Senin: ["Alyssa (ketua)","Abiezal","Alpha","Agung","Raihan","Luwi","Faqih","Farel Aditya"],
+    Selasa: ["Sahra (Ketua)","Andika","Bintang Felyan","Arfi","Aura","Fairuz","Farel Muhammad"],
+    Rabu: ["Erel (Ketua)","Adimas","Rizki Aditya","Aulia","Kholis","Al Jabar","Haura"],
+    Kamis: ["Basarif (Ketua)","Ilham Bintang","Rafa'at","Ashril","Virgi","Shanaz","Wafa"],
+    Jumat: ["Habibi (ketua)","Rizky Nadir","Haikal","Jevon","Reyvan","Irwansyah","Keysha"]
+  };
+
+  // Render Siswa
+  function renderSiswa(search = "") {
+    const container = document.getElementById("siswaListContainer");
+    const filtered = siswa.filter((nama, idx) => {
+      const no = (idx+1).toString();
+      return nama.toLowerCase().includes(search.toLowerCase()) || no.includes(search);
+    });
+    container.innerHTML = filtered.map((nama, idx) => {
+      const absen = siswa.indexOf(nama)+1;
+      return `<div class="siswa-item">${absen}. ${nama}</div>`;
+    }).join("");
+  }
+  document.getElementById("searchSiswa")?.addEventListener("input", e => renderSiswa(e.target.value));
+  
+  // Render Jadwal (Tabel rapi)
+  function renderJadwal() {
+    let html = `<table><thead><tr><th width="20%">Hari</th><th>Kegiatan / Mata Pelajaran</th></tr></thead><tbody>`;
+    for(const [hari, jwl] of Object.entries(jadwalMapel)) {
+      html += `<tr><td style="font-weight:bold; background:#fff0e6; vertical-align:top;">${hari}</td>
+               <td><ul style="margin:0; padding-left:1.2rem;">${jwl.map(j=>`<li>${j}</li>`).join("")}</ul></td></tr>`;
+    }
+    html += `</tbody></table>`;
+    document.getElementById("jadwalPanel").innerHTML = html;
+  }
+  function renderPiket() {
+    let html = `<table><thead><tr><th width="20%">Hari</th><th>Petugas Piket (Ketua & Anggota)</th></tr></thead><tbody>`;
+    for(const [hari, list] of Object.entries(piketData)) {
+      html += `<tr><td style="font-weight:bold; background:#fff7f0;">${hari}</td><td>${list.map(p => `<span style="display:inline-block; background:#ffe8e0; padding:2px 8px; border-radius:20px; margin:3px;">${p}</span>`).join(" ")}</td></tr>`;
+    }
+    html += `</tbody></table>`;
+    document.getElementById("piketPanel").innerHTML = html;
+  }
+  
+  // Tab Logic
+  let active = "jadwal";
+  const jadwalDiv = document.getElementById("jadwalPanel");
+  const piketDiv = document.getElementById("piketPanel");
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      active = btn.dataset.tab;
+      if(active === "jadwal") { jadwalDiv.style.display="block"; piketDiv.style.display="none"; renderJadwal(); }
+      else { jadwalDiv.style.display="none"; piketDiv.style.display="block"; renderPiket(); }
+    });
+  });
+  renderJadwal(); renderPiket();
+  jadwalDiv.style.display = "block"; piketDiv.style.display = "none";
+  
+  // Jam Realtime
+  function updateClock() {
+    const now = new Date();
+    document.getElementById("liveClock").innerHTML = `🕘 ${now.toLocaleTimeString('id-ID')}`;
+    document.getElementById("liveDate").innerHTML = now.toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  }
+  setInterval(updateClock,1000); updateClock();
+  
+  // Rating Emoji
+  const stars = document.querySelectorAll("#emojiRating span");
+  const msgDiv = document.getElementById("ratingMessage");
+  function setRating(val) {
+    localStorage.setItem("ratingSIJA1", val);
+    stars.forEach(s => { if(parseInt(s.dataset.rate) <= val) s.classList.add("selected"); else s.classList.remove("selected"); });
+    const messages = ["😞 Semangat belajar lagi!", "🙁 Akan kami tingkatkan!", "😐 Terima kasih!", "🙂 Happy banget!", "😍 Love you! Makasih banyak!"];
+    msgDiv.innerText = messages[val-1];
+  }
+  const saved = localStorage.getItem("ratingSIJA1");
+  if(saved) setRating(parseInt(saved));
+  stars.forEach(s => s.addEventListener("click", () => setRating(parseInt(s.dataset.rate))));
+  
+  // Animasi Splash Hilang
+  setTimeout(() => {
+    const splash = document.getElementById("splashAnim");
+    if(splash) splash.classList.add("hide");
+    setTimeout(() => { if(splash) splash.remove(); }, 900);
+  }, 2500);
+  
+  // ============ QUICK LINKS SMOOTH SCROLL (beranda, galeri, struktur, jadwalPiket, siswa) ============
+  const scrollLinks = document.querySelectorAll("[data-scroll]");
+  scrollLinks.forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute("data-scroll");
+      const targetElement = document.getElementById(targetId);
+      if(targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
+  
+  // ======================= BACKGROUND BERGERAK (ESTETIK TEKNOLOGI) =======================
+  const canvas = document.getElementById("bgCanvas");
+  const ctx = canvas.getContext("2d");
+  let width, height;
+  let particles = [];
+  function resizeCanvas() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    initParticles();
+  }
+  function initParticles() {
+    particles = [];
+    const count = Math.min(130, Math.floor(width * height / 7000));
+    for(let i=0;i<count;i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 2.5 + 1,
+        speedX: (Math.random() - 0.5) * 0.6,
+        speedY: (Math.random() - 0.5) * 0.4,
+        color: `rgba(201, 42, 42, ${Math.random() * 0.5 + 0.2})`,
+      });
+    }
+    for(let i=0;i<40;i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 3 + 1.2,
+        speedX: (Math.random() - 0.5) * 0.8,
+        speedY: (Math.random() - 0.5) * 0.5,
+        color: `rgba(255, 100, 70, ${Math.random() * 0.5 + 0.2})`,
+      });
+    }
+  }
+  function drawBackground() {
+    if(!ctx) return;
+    ctx.clearRect(0,0,width,height);
+    const grad = ctx.createLinearGradient(0,0,width,height);
+    grad.addColorStop(0, "#0e1424");
+    grad.addColorStop(1, "#181e30");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,width,height);
+    // garis sinyal dinamis
+    for(let i=0;i<8;i++) {
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(220, 70, 50, 0.12)`;
+      ctx.lineWidth = 1.2;
+      ctx.moveTo(0, height * (i/8) + Math.sin(Date.now() * 0.001 + i) * 5);
+      ctx.lineTo(width, height * ((i+0.6)/8) + Math.cos(Date.now() * 0.0008 + i) * 5);
+      ctx.stroke();
+    }
+    for(let p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      p.x += p.speedX;
+      p.y += p.speedY;
+      if(p.x < -20) p.x = width+20;
+      if(p.x > width+20) p.x = -20;
+      if(p.y < -20) p.y = height+20;
+      if(p.y > height+20) p.y = -20;
+    }
+    requestAnimationFrame(drawBackground);
+  }
+  window.addEventListener("resize", ()=> { resizeCanvas(); });
+  resizeCanvas();
+  drawBackground();
+  
+  renderSiswa("");
+</script>
+</body>
+</html>
